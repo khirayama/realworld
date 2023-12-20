@@ -10,19 +10,34 @@ const app = express();
 const port = 3001;
 
 const storage = multer.diskStorage({
-  destination(req, _file, callback) {
-    const clientId = req.body.clientId;
-    const p = path.resolve(__dirname, `../public/uploads/${clientId}`);
+  destination(_req, _file, callback) {
+    const p = path.resolve(__dirname, "../public/uploads/");
     fs.mkdirSync(p, { recursive: true });
     callback(null, p);
   },
   filename(_req, file, callback) {
     const uniqueSuffix = Math.random().toString(26).substring(4, 10);
-    callback(null, `${Date.now()}-${uniqueSuffix}-${file.originalname}`);
+    let name = file.originalname;
+    const ext = "." + file.mimetype.split("/")[1];
+    if (
+      file.originalname.indexOf(ext) !==
+      file.originalname.length - ext.length
+    ) {
+      name += ext;
+    }
+    callback(null, `${Date.now()}-${uniqueSuffix}-${name}`);
   },
 });
+
 const upload = multer({
   storage,
+  fileFilter(_req, file, cb) {
+    if (file.mimetype.split("/")[0] === "image") {
+      cb(null, true);
+    } else {
+      cb(null, false);
+    }
+  },
 });
 
 function allowCrossOrigin(
@@ -78,7 +93,8 @@ fetch('/posts').then((res) => {
 
 app.post("/posts", upload.single("postImage"), async (req, res) => {
   const { clientId, content } = req.body;
-  const imagePath = `/uploads/${clientId}/${req.file?.filename}`;
+  const file = req.file;
+  const imagePath = file ? `/uploads/${file.filename}` : "";
   const post = await prisma.post.create({
     data: {
       clientId,
