@@ -3,7 +3,7 @@ import * as fs from "fs";
 
 import express from "express";
 import multer from "multer";
-import { PrismaClient } from "@prisma/client";
+import { Post, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 const app = express();
@@ -59,37 +59,19 @@ function allowCrossOrigin(
   }
 }
 
+function exclude(post: Post, keys: (keyof Post)[]): Omit<Post, keyof Post> {
+  return Object.fromEntries(
+    Object.entries(post).filter(
+      (entry) => !keys.includes(entry[0] as keyof Post)
+    )
+  );
+}
+
 app
   .use(express.json())
   .use(express.urlencoded({ extended: true }))
   .use(allowCrossOrigin)
   .use(express.static("public"));
-
-app.get("/", (_req, res) => {
-  const html = `
-<form action="/posts" method="POST" enctype="multipart/form-data">
-  <div>
-    <input type="hidden" name="clientId" value="clientid0123456789" />
-  </div>
-  <div>
-    <input type="file" name="postImage" />
-  </div>
-  <div>
-    <input type="text" name="content" />
-  </div>
-  <div>
-    <button>SUBMIT</button>
-  </div>
-</form>
-<script>
-fetch('/posts').then((res) => {
-  console.log(res);
-  window.tmp = res;
-})
-</script>
-  `;
-  res.send(html);
-});
 
 app.post("/posts", upload.single("postImage"), async (req, res) => {
   const { clientId, content } = req.body;
@@ -102,7 +84,7 @@ app.post("/posts", upload.single("postImage"), async (req, res) => {
       imagePath,
     },
   });
-  res.json(post);
+  res.json(exclude(post, ["clientId"]));
 });
 
 app.get("/posts", async (req, res) => {
@@ -115,14 +97,14 @@ app.get("/posts", async (req, res) => {
       created: "desc",
     },
   });
-  res.json(posts);
+  res.json(posts.map((post) => exclude(post, ["clientId"])));
 });
 
 app.get("/posts/:id", async (req, res) => {
   const post = await prisma.post.findUnique({
     where: { id: Number(req.params.id) },
   });
-  res.json(post);
+  res.json(post ? exclude(post, ["clientId"]) : null);
 });
 
 app.put("/posts/:id", upload.single("postImage"), async (req, res) => {
@@ -142,7 +124,7 @@ app.put("/posts/:id", upload.single("postImage"), async (req, res) => {
         updated: new Date(),
       },
     });
-    res.json(post);
+    res.json(exclude(post, ["clientId"]));
   }
 });
 
@@ -155,7 +137,7 @@ app.delete("/posts/:id", async (req, res) => {
     const post = await prisma.post.delete({
       where: { id: Number(req.params.id) },
     });
-    res.json(post);
+    res.json(exclude(post, ["clientId"]));
   }
 });
 
