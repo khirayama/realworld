@@ -70,11 +70,22 @@ function exclude(post: Post, keys: (keyof Post)[]): Omit<Post, keyof Post> {
 app
   .use(express.json())
   .use(express.urlencoded({ extended: true }))
-  .use(allowCrossOrigin)
-  .use(express.static("public"));
+  .use(express.static("public"))
+  .use(allowCrossOrigin);
 
 app.post("/posts", upload.single("postImage"), async (req, res) => {
   const { clientId, content } = req.body;
+
+  if (!clientId) {
+    const err = new Error("No Client Id");
+    return res.status(500).json({ error: err.message });
+  }
+
+  if (!content) {
+    const err = new Error("No Content");
+    return res.status(500).json({ error: err.message });
+  }
+
   const file = req.file;
   const imagePath = file ? `/uploads/${file.filename}` : "";
   const post = await prisma.post.create({
@@ -109,6 +120,17 @@ app.get("/posts/:id", async (req, res) => {
 
 app.put("/posts/:id", upload.single("postImage"), async (req, res) => {
   const { clientId, content } = req.body;
+
+  if (!clientId) {
+    const err = new Error("No Client Id");
+    return res.status(500).json({ error: err.message });
+  }
+
+  if (!content) {
+    const err = new Error("No Content");
+    return res.status(500).json({ error: err.message });
+  }
+
   const imagePath = `/uploads/${clientId}/${req.file?.filename}`;
   let post = await prisma.post.findUnique({
     where: { id: Number(req.params.id) },
