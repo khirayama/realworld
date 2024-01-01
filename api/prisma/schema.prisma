@@ -10,11 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Post {
-  id         Int     @id @default(autoincrement())
-  clientId   String
-  content    String
-  imagePath  String
+model Client {
+  id      String   @id @default(uuid())
+  token   String
   created DateTime @default(now())
   updated DateTime @default(now())
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  clientId  String
+  content   String
+  imagePath String
+  created   DateTime @default(now())
+  updated   DateTime @default(now())
 }
