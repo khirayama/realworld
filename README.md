@@ -23,6 +23,7 @@
 -   [ ] テーマ(ダークモード)
 -   [ ] テスト
 -   [ ] 共有
+-   [ ] 多言語対応
 
 ### Web
 
@@ -33,13 +34,28 @@
 
 -   [ ] WebViewの利用
 -   [ ] Mapsの利用
+-   [ ] バックグランド処理
+-   [ ] ウィジェット
 -   [ ] Google Play ストアでの公開
 
 ### iOS
 
 -   [ ] WebViewの利用
 -   [ ] Mapsの利用
+-   [ ] バックグランド処理
+-   [ ] ウィジェット
 -   [ ] App Storeでの公開
+
+## Platform
+
+-   web
+-   iOS/iPad
+-   Android
+-   Mac
+-   Windows
+
+-   Flutter
+-   React Native
 
 ## 参考
 
