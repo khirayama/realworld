@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Dialog } from "@headlessui/react";
 
-import { getClientId, getURL } from "utils";
+import { getURL } from "utils";
 
 export function PostDialog(props: {
   open: boolean;
@@ -103,7 +103,6 @@ export function PostDialog(props: {
                       .then((blob) => {
                         const fd = new FormData();
                         fd.append("postImage", blob);
-                        fd.append("clientId", getClientId());
                         fd.append("content", content);
                         fetch(getURL("/posts"), {
                           method: "POST",
