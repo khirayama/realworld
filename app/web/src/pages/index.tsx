@@ -13,7 +13,7 @@ import classnames from "classnames";
 import { getURL } from "utils";
 import { PostDialog } from "components";
 
-const fetcher = <T,>(path: string): Promise<T> => {
+const fetcher = async <T,>(path: string): Promise<T> => {
   return fetch(getURL(path), {
     headers: {
       Authorization: `Bearer ${window.localStorage.getItem("token")}`,
