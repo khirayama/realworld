@@ -5,4 +5,3 @@ type Post = {
   created: string;
   updated: string;
 };
-
